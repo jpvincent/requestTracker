@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="js/performTime.js"></script>
+		<script type="text/javascript" src="js/jquery-1.10.0.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+	</head>
+	<body>
+		<div id="header">
+			Performance Timing demo
+		</div>
+		<h2>Ressource Monitoring</h2>
+			<ul>
+				<li id="li_monitoring_jquery">Waiting ressource : jquery-1.10.0.min.js</li>
+				<li id="li_monitoring_test">Waiting ressource : test.js</li>
+			</ul>
+		<h2>Direct call of analyzeEntries</h2>
+			<ul>
+				<li id="li_directCall_stylesheet">Waiting ressource : stylesheet.css</li>
+			</ul>
+		<h2>Ressource Monitoring failure</h2>
+			<ul>
+				<li id="li_monitoring_failure">Waiting ressource : ressourceNot.here</li>
+			</ul>
+		<script>
+			var directCall_stylesheet_flag=true;
+			var monitoring_jquery_flag=true;
+			var monitoring_test_flag=true;
+			var monitoring_failure_flag=true;
+
+			//Call test.js in asynchrone
+	        var ga = document.createElement('script'); 
+	        ga.type = 'text/javascript';    
+	        ga.async = true;
+	        ga.src = ("js/test.js");
+	        var s = document.getElementsByTagName('script')[0]; 
+	        s.parentNode.insertBefore(ga, s);
+		    
+		    //Call analyzEntries onLoad for stylesheet.css
+			window.onload =function(){
+				PT.analyzeEntries(/\/css\/stylesheet\.css/,function(res2){
+					li_directCall_stylesheet.innerHTML=res2[0].name+'<br /> <b>responseEnd : '+res2[0].responseEnd+'</b>';
+					li_directCall_stylesheet.className='working';
+					directCall_stylesheet_flag=false;
+					console.log(res2);
+				});
+			} 
+
+			//RessourceMonitoring for jquery-1.10.0.min.js
+			PT.startRessourceMonitoring(/\/js\/jquery\-1\.10\.0\.min\.js/,function(res){
+				li_monitoring_jquery.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+		        li_monitoring_jquery.className='working';
+		        monitoring_jquery_flag=false;
+		        console.log(res);
+		    },250);
+
+		    //RessourceMonitoring for test.js
+			PT.startRessourceMonitoring(/\/js\/test\.js/,function(res){
+				li_monitoring_test.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+		       	li_monitoring_test.className='working';
+		       	monitoring_test_flag=false;
+		       	console.log(res);
+		    },250);
+
+		    //RessourceMonitoring for ressourceNot.here
+			PT.startRessourceMonitoring(/ressourceNot.here/,function(res){
+				li_monitoring_failure.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+		       	li_monitoring_failure.className='error';
+		       	monitoring_failure_flag=false;
+		       	console.log(res);
+		    },250);
+
+		    setTimeout(function(){
+		    	PT.stopRessourceMonitoring();
+		    	if (directCall_stylesheet_flag==true) {
+			    	li_directCall_stylesheet.className='error';
+			    	li_directCall_stylesheet.innerHTML='Ressource not found';
+		    	}
+		    	if (monitoring_jquery_flag==true) {
+			    	li_monitoring_jquery.className='error';
+			    	li_monitoring_jquery.innerHTML='Ressource not found';
+		    	}
+		    	if (monitoring_test_flag==true) {
+			    	li_monitoring_test.className='error';
+			    	li_monitoring_test.innerHTML='Ressource not found';
+		    	}
+		    	if (monitoring_failure_flag==true) {
+			    	li_monitoring_failure.className='working';
+			    	li_monitoring_failure.innerHTML='There is no false positive';
+		    	}
+		    },3000);
+		</script>
+	</body>			
+</html>
