@@ -9,9 +9,8 @@ requestTracker allows you to know the time your real users spend on some strateg
 How ?
 -
 
-Using the "Resource Timing API" and 
-http://w3c-test.org/webperf/specs/ResourceTiming/#performanceresourcetiming
-http://www.w3.org/TR/navigation-timing/#sec-navigation-timing-interface
+Using the [Performance timeline API](http://www.w3.org/TR/performance-timeline/) to retrieve HTTP requests from the browser. Information given in the callback are a merge of [PerformanceEntry](http://www.w3.org/TR/performance-timeline/#sec-PerformanceEntry-interface) and [PerformanceResourceTiming](http://www.w3.org/TR/resource-timing/#performanceresourcetiming).
+
 
 Compatibility
 -
@@ -31,9 +30,24 @@ For a demo or to test on browsers, execute index.html
 Basic usage : starts monitoring of the main homepage image.
 
 ```javascript
-PT.startRessourceMonitoring(
+PT.startResourceMonitoring(
 	/main-content\.png/, // give a RegexP object
-	function(timingCollection){ // a collection of PerformanceTiming objects
+	function(timingCollection){ // receive a collection of PerformanceTiming objects
+		console.log(
+			timingCollection[0].name
+			+' arrived after '
+			+timingCollection[0].responseEnd +' ms'
+		);
+		PT.stopResourceMonitoring();
+	});
+```
+
+Decide when you need to know the timing of the requests
+
+```javascript
+PT.analyzeEntries(
+	/main-content\.png/, // give a RegexP object
+	function(timingCollection){ // receive a collection of PerformanceTiming objects
 		console.log(
 			timingCollection[0].name
 			+' arrived after '
