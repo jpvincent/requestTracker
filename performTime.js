@@ -2,7 +2,15 @@
 	PT = window.PT || {};
 	var resourceAnalyzeNames={};
 	var isMonitoring = true;
-	var getEntries = performance.getEntries || performance.webkitGetEntries || performance.msGetEntries || performance.mozGetEntries || null;
+	if(!window.performance){
+		PT.analyzeEntries = function(){};
+	}
+	else{
+		var getEntries = performance.getEntries || performance.webkitGetEntries || performance.msGetEntries || performance.mozGetEntries || null;
+		if(!getEntries){
+			PT.analyzeEntries = function(){};
+		}
+	}
 	var	analyzeEntries = function(search, callback) {
 		//Checks
 		if(!'exec' in search) {
@@ -31,16 +39,7 @@
 	return false;
 	}
 
-	if(!window.performance){
-		PT.analyzeEntries = function(){};
-	}
-	else{
-		if(!getEntries){
-			PT.analyzeEntries = function(){};
-		}
-	}
-
-	PT.analyzeEntries = analyzeEntries;
+	PT.analyzeEntries = PT.analyzeEntries || analyzeEntries;
     PT.startResourceMonitoring = function(regex, callback, interval){
     	if(!interval){
     		interval = 1000;
