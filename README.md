@@ -11,28 +11,30 @@ How ?
 
 Using the [Performance timeline API](http://www.w3.org/TR/performance-timeline/) to retrieve HTTP requests from the browser. Information given in the callback are a merge of [PerformanceEntry](http://www.w3.org/TR/performance-timeline/#sec-PerformanceEntry-interface) and [PerformanceResourceTiming](http://www.w3.org/TR/resource-timing/#performanceresourcetiming).
 
+The information are retrieved at DOM ready, at onload, then there is a check every second.
+
 
 Compatibility
 -
 
-Compatible with more than 2 thirds of your desktop and mobile users, enough to have realistic data :
-* IE10
+Compatible with more than one third of your desktop users, enough to have realistic data :
+* IE10 (mobile included)
 * Chrome (mobile included)
-* Firefox (mobile included)
+* Opera (mobile include)
 
 On incompatible browsers, that simply does nothing.
 
 Usage
 -
 
-For a demo or to test on browsers, execute index.html
+For a demo or to test on browsers, execute demo.html
 
-Basic usage : starts monitoring of the main homepage image.
+Basic example : starts monitoring of the main homepage image.
 
 ```javascript
 PT.startResourceMonitoring(
 	/main-content\.png/, // give a RegexP object
-	function(timingCollection){ // receive a collection of PerformanceTiming objects
+	function(timingCollection){ // receive a collection of PerformanceEntry + PerformanceResourceTiming objects
 		console.log(
 			timingCollection[0].name
 			+' arrived after '
@@ -40,6 +42,12 @@ PT.startResourceMonitoring(
 		);
 		PT.stopResourceMonitoring();
 	});
+```
+
+Don't like infinite loops ? Stop monitoring after onload
+
+```javascript
+window.addEventListener('load', PT.stopResourceMonitoring, false);
 ```
 
 Decide when you need to know the timing of the requests
@@ -54,5 +62,4 @@ PT.analyzeEntries(
 			+timingCollection[0].responseEnd +' ms'
 		);
 	});
-
 ```
