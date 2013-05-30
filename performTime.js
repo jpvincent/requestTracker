@@ -1,6 +1,6 @@
 (function(){
 	PT = window.PT || {};
-	var ressourceAnalyzeNames={};
+	var resourceAnalyzeNames={};
 	var isMonitoring = true;
 	var getEntries = performance.getEntries || performance.webkitGetEntries || performance.msGetEntries || performance.mozGetEntries || null;
 	var	analyzeEntries = function(search, callback) {
@@ -17,9 +17,9 @@
 		for (var i = 0, max = perfEntries.length ; i < max ; i++) { //Cross entries tab
 			var name = perfEntries[i].name
 			if(name.match(search) != null) {
-			    if (!(name in ressourceAnalyzeNames)){
+			    if (!(name in resourceAnalyzeNames)){
 			    	res.push(perfEntries[i]); //If 'search' is found we stock the entries tab in results tab for callback
-			  		ressourceAnalyzeNames[name]=true;
+			  		resourceAnalyzeNames[name]=true;
 			  	}
 			}
 				
@@ -41,7 +41,7 @@
 	}
 
 	PT.analyzeEntries = analyzeEntries;
-    PT.startRessourceMonitoring = function(regex, callback, interval){
+    PT.startResourceMonitoring = function(regex, callback, interval){
     		isMonitoring=true;
 			addEvent(document, 'DOMContentLoaded',function(){
 	    		PT.analyzeEntries(regex, callback);
@@ -60,7 +60,7 @@
 	        });
     }
 
-    PT.stopRessourceMonitoring = function(){
+    PT.stopResourceMonitoring = function(){
     	isMonitoring = false;
     }
 
