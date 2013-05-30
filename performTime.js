@@ -42,22 +42,25 @@
 
 	PT.analyzeEntries = analyzeEntries;
     PT.startResourceMonitoring = function(regex, callback, interval){
-    		isMonitoring=true;
-			addEvent(document, 'DOMContentLoaded',function(){
-	    		PT.analyzeEntries(regex, callback);
-	    	});
+    	if(!interval){
+    		interval = 1000;
+    	}
+    	isMonitoring=true;
+		addEvent(document, 'DOMContentLoaded',function(){
+	    	PT.analyzeEntries(regex, callback);
+	    });
 
-	        addEvent(window, 'load', function(){
-	        	PT.analyzeEntries(regex, callback);
-	        	setTimeout(
-	            function(){
-	            if(!isMonitoring){
-	            	return false;
-	            }
-	              PT.analyzeEntries(regex, callback);
-	              setTimeout(arguments.callee,interval);
-	            },interval);
-	        });
+	    addEvent(window, 'load', function(){
+	        PT.analyzeEntries(regex, callback);
+	        setTimeout(
+		       	function(){
+			            if(!isMonitoring){
+			            	return false;
+			            }
+			            PT.analyzeEntries(regex, callback);
+			            setTimeout(arguments.callee,interval);
+		        },interval);
+	    });
     }
 
     PT.stopResourceMonitoring = function(){
