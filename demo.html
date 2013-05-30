@@ -9,18 +9,18 @@
 		<div id="header">
 			Performance Timing demo
 		</div>
-		<h2>Ressource Monitoring</h2>
+		<h2>Resource Monitoring</h2>
 			<ul>
-				<li id="li_monitoring_jquery">Waiting ressource : jquery-1.10.0.min.js</li>
-				<li id="li_monitoring_test">Waiting ressource : test.js</li>
+				<li id="li_monitoring_jquery">Waiting resource : jquery-1.10.0.min.js</li>
+				<li id="li_monitoring_test">Waiting resource : test.js</li>
 			</ul>
 		<h2>Direct call of analyzeEntries</h2>
 			<ul>
-				<li id="li_directCall_stylesheet">Waiting ressource : stylesheet.css</li>
+				<li id="li_directCall_stylesheet">Waiting resource : stylesheet.css</li>
 			</ul>
-		<h2>Ressource Monitoring failure</h2>
+		<h2>Resource Monitoring failure</h2>
 			<ul>
-				<li id="li_monitoring_failure">Waiting ressource : ressourceNot.here</li>
+				<li id="li_monitoring_failure">Waiting resource : resourceNot.here</li>
 			</ul>
 		<script>
 			var directCall_stylesheet_flag=true;
@@ -46,24 +46,24 @@
 				});
 			} 
 
-			//RessourceMonitoring for jquery-1.10.0.min.js
-			PT.startRessourceMonitoring(/\/js\/jquery\-1\.10\.0\.min\.js/,function(res){
+			//ResourceMonitoring for jquery-1.10.0.min.js
+			PT.startResourceMonitoring(/\/js\/jquery\-1\.10\.0\.min\.js/,function(res){
 				li_monitoring_jquery.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
 		        li_monitoring_jquery.className='working';
 		        monitoring_jquery_flag=false;
 		        console.log(res);
 		    },250);
 
-		    //RessourceMonitoring for test.js
-			PT.startRessourceMonitoring(/\/js\/test\.js/,function(res){
+		    //ResourceMonitoring for test.js
+			PT.startResourceMonitoring(/\/js\/test\.js/,function(res){
 				li_monitoring_test.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
 		       	li_monitoring_test.className='working';
 		       	monitoring_test_flag=false;
 		       	console.log(res);
 		    },250);
 
-		    //RessourceMonitoring for ressourceNot.here
-			PT.startRessourceMonitoring(/ressourceNot.here/,function(res){
+		    //ResourceMonitoring for resourceNot.here
+			PT.startResourceMonitoring(/resourceNot.here/,function(res){
 				li_monitoring_failure.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
 		       	li_monitoring_failure.className='error';
 		       	monitoring_failure_flag=false;
@@ -71,18 +71,18 @@
 		    },250);
 
 		    setTimeout(function(){
-		    	PT.stopRessourceMonitoring();
+		    	PT.stopResourceMonitoring();
 		    	if (directCall_stylesheet_flag==true) {
 			    	li_directCall_stylesheet.className='error';
-			    	li_directCall_stylesheet.innerHTML='Ressource not found';
+			    	li_directCall_stylesheet.innerHTML='Incompatible browser...';
 		    	}
 		    	if (monitoring_jquery_flag==true) {
 			    	li_monitoring_jquery.className='error';
-			    	li_monitoring_jquery.innerHTML='Ressource not found';
+			    	li_monitoring_jquery.innerHTML='Incompatible browser...';
 		    	}
 		    	if (monitoring_test_flag==true) {
 			    	li_monitoring_test.className='error';
-			    	li_monitoring_test.innerHTML='Ressource not found';
+			    	li_monitoring_test.innerHTML='Incompatible browser...';
 		    	}
 		    	if (monitoring_failure_flag==true) {
 			    	li_monitoring_failure.className='working';
