@@ -25,12 +25,12 @@ h2{
 	text-align: center;
 }
 .error{
-	background-color: hsla(0,87%,52%,0.5)!important;
 	background-color: #ea4b4b;
+	background-color: hsla(0,87%,52%,0.5);
 }
 .working{
-	background-color: hsla(110,87%,58%,0.5)!important;
 	background-color: #aaf89a;
+	background-color: hsla(110,87%,58%,0.5);
 }
 #header {
 	width: 100%;
