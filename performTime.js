@@ -35,8 +35,11 @@
 	   	if(res.length == 0){
 	    	return true;
 		}
-		setTimeout(function(){callback(res)},0); //Callback all results tab for 'search'
-	return false;
+		setTimeout(
+			function(){
+				callback(res)
+			}, 0); //Callback all results tab for 'search'
+		return false;
 	}
 
 	PT.analyzeEntries = PT.analyzeEntries || analyzeEntries;
@@ -44,7 +47,8 @@
     	if(!interval){
     		interval = 1000;
     	}
-    	isMonitoring=true;
+		isMonitoring=true;
+		// check what has been downloaded at 2 important moments + Infinity : when DOM is ready, on load, and once every second after that
 		addEvent(document, 'DOMContentLoaded',function(){
 	    	PT.analyzeEntries(regex, callback);
 	    });
@@ -60,16 +64,16 @@
 			            setTimeout(arguments.callee,interval);
 		        },interval);
 	    });
-    }
+    };
 
     PT.stopResourceMonitoring = function(){
     	isMonitoring = false;
-    }
+    };
 
     var addEvent = function(el, ev, fn) {
         if (el.addEventListener) {
             el.addEventListener(ev, fn, false);
         }
-    }
+    };
 
 })();
