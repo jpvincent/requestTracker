@@ -70,6 +70,31 @@
     	isMonitoring = false;
     };
 
+	// uses non standard methods of IE9 (not 10) and Chrome to get the first paint time
+	// @returns null or the number of milliseconds between navigationStart and first pixel displayed
+	PT.getFirstPaintTime = function (argument) {
+		if('chrome' in window
+			&& 'loadTimes' in chrome) {
+			// chrome gives the time with timestamp = seconds.millisecond
+			var firstPaintTime = chrome.loadTimes().firstPaintTime;
+			firstPaintTime = Math.round(firstPaintTime * 1000);
+			firstPaintTime -= performance.timing.connectStart;
+			if(firstPaintTime > 0)
+				return firstPaintTime;
+			else // was called too soon (before pixels were actually painted)
+				return null;
+		} else if('performance' in window
+					&& 'timing' in performance
+					&& 'msFirstPaint' in performance.timing) {
+			// IE9 has this form : timestamp in milliseconds
+			var firstPaintTime = performance.timing.msFirstPaint - performance.timing.connectStart;
+			// should be navigationStart, but IE9 seems to consistently returns 0
+			return firstPaintTime;
+		} else {
+			return null;
+		}
+	};
+	
     var addEvent = function(el, ev, fn) {
         if (el.addEventListener) {
             el.addEventListener(ev, fn, false);
