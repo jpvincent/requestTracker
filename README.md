@@ -63,3 +63,9 @@ PT.analyzeEntries(
 		);
 	});
 ```
+
+On Chrome and IE 9, get the number of milliseconds between page request and first pixels displayed
+
+```javascript
+_gaq.push(['_trackTiming', 'Global figures', 'Time to paint first pixels', PT.getFirstPaintTime() ]);
+```
