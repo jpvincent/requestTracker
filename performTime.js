@@ -1,5 +1,5 @@
 (function(){
-	PT = window.PT || {};
+	window.PT = window.PT || {};
 	var resourceAnalyzeNames={};
 	var isMonitoring = true;
 	if(!window.performance){
@@ -70,31 +70,61 @@
     	isMonitoring = false;
     };
 
-	// uses non standard methods of IE9 (not 10) and Chrome to get the first paint time
-	// @returns null or the number of milliseconds between navigationStart and first pixel displayed
-	PT.getFirstPaintTime = function (argument) {
+	
+    /**
+    *	uses non standard methods of IE9 (not 10) and Chrome to get the first paint time
+    *	@param callback : browsers that implemented this wait some time before calculating 
+    *	time to first paint. The argument given back to the callback will be 
+    *	the number of milliseconds between navigationStart and first pixel displayed
+    *	Plan for cases when the callback is never executed
+    */
+	var iNumberOfTries = 0,
+		iDelay = 500,
+		iMaxTries = 10,
+		// let's be positive some time, we'll feature detect later
+		bIsFeatureSupported = true;
+	// Edge Case : chrome frame is giving insane time (years…)
+	if('externalHost' in window)
+		bIsFeatureSupported = false;
+	
+	PT.getFirstPaintTime = function getFirstPaintTime(callback) {
+		if(bIsFeatureSupported === false)
+			return false;
+
 		if('chrome' in window
 			&& 'loadTimes' in chrome) {
 			// chrome gives the time with timestamp = seconds.millisecond
 			var firstPaintTime = chrome.loadTimes().firstPaintTime;
 			firstPaintTime = Math.round(firstPaintTime * 1000);
-			firstPaintTime -= performance.timing.connectStart;
-			if(firstPaintTime > 0)
-				return firstPaintTime;
-			else // was called too soon (before pixels were actually painted)
-				return null;
 		} else if('performance' in window
 					&& 'timing' in performance
 					&& 'msFirstPaint' in performance.timing) {
-			// IE9 has this form : timestamp in milliseconds
-			var firstPaintTime = performance.timing.msFirstPaint - performance.timing.connectStart;
-			// should be navigationStart, but IE9 seems to consistently returns 0
-			return firstPaintTime;
+			// IE9 has an expected format : timestamp in milliseconds
+			var firstPaintTime = performance.timing.msFirstPaint;
 		} else {
-			return null;
+			bIsFeatureSupported = false;
+		}
+
+		if(bIsFeatureSupported === true) {
+			// console.log(firstPaintTime+' '+performance.timing.navigationStart);
+			firstPaintTime -= performance.timing.navigationStart;
+			if(firstPaintTime > 0) {
+				// bugs found in productin : an IE user agent saying the page displayed after more than one year
+				// did not found the reason, so preventing here crazy times (more than 10 minutes)
+				if(firstPaintTime > 600000)
+					return false;
+				setTimeout(function () {
+					callback(firstPaintTime);
+				}, 0);
+			} else if(iMaxTries > iNumberOfTries) {
+				setTimeout(function () {
+					iNumberOfTries++;
+					getFirstPaintTime(callback);
+				}, iDelay);
+			}
 		}
 	};
-	
+
     var addEvent = function(el, ev, fn) {
         if (el.addEventListener) {
             el.addEventListener(ev, fn, false);

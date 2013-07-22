@@ -23,18 +23,19 @@
 				<li id="li_monitoring_failure">Waiting resource : resourceNot.here</li>
 			</ul>
 		<script>
-			var directCall_stylesheet_flag=true;
-			var monitoring_jquery_flag=true;
-			var monitoring_test_flag=true;
-			var monitoring_failure_flag=true;
+			var directCall_stylesheet_flag =
+				monitoring_jquery_flag	=
+				monitoring_test_flag	=
+				monitoring_failure_flag	=
+				timeToFirstPaint_failure_flag	= true;
 
-			//Call test.js in asynchrone
-	        var ga = document.createElement('script'); 
-	        ga.type = 'text/javascript';    
-	        ga.async = true;
-	        ga.src = ("js/test.js");
+			//Asynchronous test.js inclusion
+	        var asyncScript = document.createElement('script'); 
+	        asyncScript.type = 'text/javascript';    
+	        asyncScript.async = true;
+	        asyncScript.src = ("js/test.js");
 	        var s = document.getElementsByTagName('script')[0]; 
-	        s.parentNode.insertBefore(ga, s);
+	        s.parentNode.insertBefore(asyncScript, s);
 		    
 		    //Call analyzEntries onLoad for stylesheet.css
 			window.onload =function(){
@@ -70,23 +71,34 @@
 		       	console.log(res);
 		    },250);
 
+			// get time to first paint from the browser
+		    PT.getFirstPaintTime(function displayFirstPaint(firstPaintTime) {
+				li_timeToFirstPaint = firstPaintTime+' ms before browser painted pixels';
+				timeToFirstPaint_failure_flag = false;
+				console.log(firstPaintTime);
+			});
+
 		    setTimeout(function(){
 		    	PT.stopResourceMonitoring();
-		    	if (directCall_stylesheet_flag==true) {
+		    	if (directCall_stylesheet_flag === true) {
 			    	li_directCall_stylesheet.className='error';
 			    	li_directCall_stylesheet.innerHTML='Incompatible browser...';
 		    	}
-		    	if (monitoring_jquery_flag==true) {
+		    	if (monitoring_jquery_flag === true) {
 			    	li_monitoring_jquery.className='error';
 			    	li_monitoring_jquery.innerHTML='Incompatible browser...';
 		    	}
-		    	if (monitoring_test_flag==true) {
+		    	if (monitoring_test_flag === true) {
 			    	li_monitoring_test.className='error';
 			    	li_monitoring_test.innerHTML='Incompatible browser...';
 		    	}
-		    	if (monitoring_failure_flag==true) {
+		    	if (monitoring_failure_flag === true) {
 			    	li_monitoring_failure.className='working';
 			    	li_monitoring_failure.innerHTML='There is no false positive';
+		    	}
+		    	if (timeToFirstPaint_failure_flag === true) {
+					li_timeToFirstPaint.className='error';
+					li_timeToFirstPaint.innerHTML='Time to First Paint Incompatible Browser';
 		    	}
 		    },3000);
 		</script>

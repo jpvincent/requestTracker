@@ -5,6 +5,7 @@ requestTracker allows you to know the time your real users spend on some strateg
 * know when your tracking beacon is really executed (aka, how much users your marketing team misses)
 * know when important images are finally downloaded (aka, when is this images slideshow really seen)
 * know when .swf files are there (aka, when does my ad or video really start)
+* determine the browser time to first paint
 
 How ?
 -
