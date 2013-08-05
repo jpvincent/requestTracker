@@ -18,6 +18,9 @@ Using the [Performance timeline API](http://www.w3.org/TR/performance-timeline/)
 
 The information are retrieved at DOM ready, at onload, then there is a check every second.
 
+For Time to First Paint, we are using two non-standard methods :
+* [performance.timing.msFirstPaint](http://msdn.microsoft.com/en-us/library/ie/ff974719(v=vs.85).aspx) (IE9 +)
+* chrome.loadTimes().firstPaintTime (Chrome)
 
 Compatibility
 -
