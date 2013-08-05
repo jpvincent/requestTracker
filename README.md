@@ -1,7 +1,11 @@
 Why ?
 -
 
-requestTracker allows you to know the time your real users spend on some strategical HTTP requests. That's useful for :
+requestTracker allows you to :
+* know the time your real users spend on some strategical HTTP requests.
+* know when the user really starts to see the page
+
+That's useful for :
 * know when your tracking beacon is really executed (aka, how much users your marketing team misses)
 * know when important images are finally downloaded (aka, when is this images slideshow really seen)
 * know when .swf files are there (aka, when does my ad or video really start)
