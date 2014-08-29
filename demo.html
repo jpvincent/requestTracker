@@ -2,7 +2,9 @@
 <html>
 	<head>
 		<script type="text/javascript" src="performTime.js"></script>
-		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
+		<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.15.0.js"></script>
+		
 		<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
 	</head>
 	<body>
@@ -11,8 +13,9 @@
 		</div>
 		<h2>Resource Monitoring</h2>
 			<ul>
-				<li id="li_monitoring_jquery">Waiting resource : jquery-1.10.0.min.js</li>
-				<li id="li_monitoring_test">Waiting resource : test.js</li>
+				<li id="li_monitoring_jquery">Waiting resource : <code>/jquery\-latest\.min\.js$/</code></li>
+				<li id="li_monitoring_test_regex">Waiting async resource : <code>/test\.js$/</code></li>
+				<li id="li_monitoring_test_string">Waiting resource : <code>http://code.jquery.com/qunit/qunit-1.15.0.js</code></li>
 			</ul>
 		<h2>Direct call of analyzeEntries</h2>
 			<ul>
@@ -22,85 +25,106 @@
 			<ul>
 				<li id="li_monitoring_failure">Waiting resource : resourceNot.here</li>
 			</ul>
-		<script>
-			var directCall_stylesheet_flag =
-				monitoring_jquery_flag	=
-				monitoring_test_flag	=
-				monitoring_failure_flag	=
-				timeToFirstPaint_failure_flag	= true;
+		<h2>Detect the time to first render</h2>
+			<ul>
+				<li id="li_timeToFirstPaint">Waiting for the browser to give us the time to first paint...</li>
+			</ul>
 
-			//Asynchronous test.js inclusion
-	        var asyncScript = document.createElement('script'); 
-	        asyncScript.type = 'text/javascript';    
-	        asyncScript.async = true;
-	        asyncScript.src = ("js/test.js");
-	        var s = document.getElementsByTagName('script')[0]; 
-	        s.parentNode.insertBefore(asyncScript, s);
-		    
-		    //Call analyzEntries onLoad for stylesheet.css
-			window.onload =function(){
-				PT.analyzeEntries(/\/css\/stylesheet\.css/,function(res2){
-					li_directCall_stylesheet.innerHTML=res2[0].name+'<br /> <b>responseEnd : '+res2[0].responseEnd+'</b>';
-					li_directCall_stylesheet.className='working';
-					directCall_stylesheet_flag=false;
-					console.log(res2);
-				});
-			} 
+					More accurate results when the page is served from an HTTP server (rather than from disk)
 
-			//ResourceMonitoring for jquery-1.10.0.min.js
-			PT.startResourceMonitoring(/jquery\-latest\.min\.js/,function(res){
-				li_monitoring_jquery.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
-		        li_monitoring_jquery.className='working';
-		        monitoring_jquery_flag=false;
-		        console.log(res);
-		    },250);
+<script>
+var directCall_stylesheet_flag =
+	monitoring_jquery_flag	=
+	monitoring_test_flag	=
+	monitoring_failure_flag	=
+	monitoring_test_string_flag =
+	timeToFirstPaint_failure_flag	= true;
 
-		    //ResourceMonitoring for test.js
-			PT.startResourceMonitoring(/\/js\/test\.js/,function(res){
-				li_monitoring_test.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
-		       	li_monitoring_test.className='working';
-		       	monitoring_test_flag=false;
-		       	console.log(res);
-		    });
+//Asynchronous test.js inclusion
+var asyncScript = document.createElement('script');
+asyncScript.type = 'text/javascript';
+asyncScript.async = true;
+asyncScript.src = "js/test.js";
+var s = document.getElementsByTagName('script')[0];
+s.parentNode.insertBefore(asyncScript, s);
 
-		    //ResourceMonitoring for resourceNot.here
-			PT.startResourceMonitoring(/resourceNot.here/,function(res){
-				li_monitoring_failure.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
-		       	li_monitoring_failure.className='error';
-		       	monitoring_failure_flag=false;
-		       	console.log(res);
-		    },250);
+//Call analyzEntries onLoad for stylesheet.css
+window.onload = function(){
+	PT.analyzeEntries(/stylesheet\.css$/,function(res2){
+		li_directCall_stylesheet.innerHTML=res2[0].name+'<br /> <b>responseEnd : '+res2[0].responseEnd+'</b>';
+		li_directCall_stylesheet.className='working';
+		directCall_stylesheet_flag=false;
+		console.log(res2);
+	});
+};
 
-			// get time to first paint from the browser
-		    PT.getFirstPaintTime(function displayFirstPaint(firstPaintTime) {
-				li_timeToFirstPaint = firstPaintTime+' ms before browser painted pixels';
-				timeToFirstPaint_failure_flag = false;
-				console.log(firstPaintTime);
-			});
+//ResourceMonitoring for jquery-1.10.0.min.js
+PT.startResourceMonitoring(/jquery\-latest\.min\.js$/,function(res){
+	li_monitoring_jquery.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+      li_monitoring_jquery.className='working';
+      monitoring_jquery_flag=false;
+      console.log(res);
+  },250);
 
-		    setTimeout(function(){
-		    	PT.stopResourceMonitoring();
-		    	if (directCall_stylesheet_flag === true) {
-			    	li_directCall_stylesheet.className='error';
-			    	li_directCall_stylesheet.innerHTML='Incompatible browser...';
-		    	}
-		    	if (monitoring_jquery_flag === true) {
-			    	li_monitoring_jquery.className='error';
-			    	li_monitoring_jquery.innerHTML='Incompatible browser...';
-		    	}
-		    	if (monitoring_test_flag === true) {
-			    	li_monitoring_test.className='error';
-			    	li_monitoring_test.innerHTML='Incompatible browser...';
-		    	}
-		    	if (monitoring_failure_flag === true) {
-			    	li_monitoring_failure.className='working';
-			    	li_monitoring_failure.innerHTML='There is no false positive';
-		    	}
-		    	if (timeToFirstPaint_failure_flag === true) {
-					li_timeToFirstPaint.className='error';
-					li_timeToFirstPaint.innerHTML='Time to First Paint Incompatible Browser';
-		    	}
-		    },3000);
-		</script>
-	</body>			
+  //ResourceMonitoring for test.js
+PT.startResourceMonitoring(/test\.js$/,function(res){
+	li_monitoring_test_regex.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+     	li_monitoring_test_regex.className='working';
+     	monitoring_test_flag=false;
+     	console.log(res);
+  });
+
+PT.startResourceMonitoring('http://code.jquery.com/qunit/qunit-1.15.0.js',function(res){
+	li_monitoring_test_string.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+		li_monitoring_test_string.className='working';
+		monitoring_test_string_flag=false;
+		console.log(res);
+	});
+
+
+  //ResourceMonitoring for resourceNot.here
+PT.startResourceMonitoring(/resourceNot.here/,function(res){
+	li_monitoring_failure.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+     	li_monitoring_failure.className='error';
+     	monitoring_failure_flag=false;
+     	console.log(res);
+  },250);
+
+// get time to first paint from the browser
+ PT.getFirstPaintTime(function displayFirstPaint(firstPaintTime) {
+	li_timeToFirstPaint.innerHTML = firstPaintTime+' ms before browser painted pixels';
+	li_timeToFirstPaint.className = 'working';
+	timeToFirstPaint_failure_flag = false;
+});
+
+setTimeout(function(){
+	PT.stopResourceMonitoring();
+	if (directCall_stylesheet_flag === true) {
+		li_directCall_stylesheet.className='error';
+		li_directCall_stylesheet.innerHTML='Incompatible browser...';
+	}
+	if (monitoring_jquery_flag === true) {
+		li_monitoring_jquery.className='error';
+		li_monitoring_jquery.innerHTML='Incompatible browser...';
+	}
+	if (monitoring_test_flag === true) {
+		li_monitoring_test_regex.className='error';
+		li_monitoring_test_regex.innerHTML='Incompatible browser...';
+	}
+	if (monitoring_test_string_flag === true) {
+		li_monitoring_test_string.className='error';
+		li_monitoring_test_string.innerHTML='Incompatible browser...';
+	}
+	if (monitoring_failure_flag === true) {
+		li_monitoring_failure.className='working';
+		li_monitoring_failure.innerHTML='There is no false positive';
+	}
+	if (timeToFirstPaint_failure_flag === true) {
+		li_timeToFirstPaint.className='error';
+		li_timeToFirstPaint.innerHTML='Time to First Paint Incompatible Browser';
+	}
+}, 3000);
+</script>
+
+	</body>
 </html>
