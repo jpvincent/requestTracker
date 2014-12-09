@@ -25,8 +25,9 @@ For Time to First Paint, we are using two non-standard methods :
 Compatibility
 -
 
-Compatible with more than one third of your desktop users, enough to have realistic data :
+(Compatible)[http://caniuse.com/#feat=resource-timing] with more than 50% of your users, enough to have realistic data :
 * IE10 (mobile included)
+* Firefox 34+
 * Chrome (mobile included)
 * Opera (mobile include)
 
