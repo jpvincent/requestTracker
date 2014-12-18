@@ -24,7 +24,7 @@
 		//Code
 		for (var i = 0, max = perfEntries.length; i < max; i++) { //Cross entries tab
 			var name = perfEntries[i].name;
-			if (search === name || name.match(search) != null) {
+			if (encodeURI(search) === name || name.match(search) != null) {
 				if (!(name in resourceAnalyzeNames)) {
 					res.push(perfEntries[i]); //If 'search' is found we stock the entries tab in results tab for callback
 					resourceAnalyzeNames[name] = true;
