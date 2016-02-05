@@ -58,6 +58,7 @@
 			if(Math.random()*100 > params.probability)
 				return true;
 			// send to google analytics universal (https://developers.google.com/analytics/devguides/collection/analyticsjs/user-timings)
+			// dont forget to set a siteSpeedSampleRate to 100% https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#siteSpeedSampleRate
 			if ('ga' in window && params.timing) {
 					ga('send', 'timing', params.category, params.subcategory, params.timing, params.label);
 			}
