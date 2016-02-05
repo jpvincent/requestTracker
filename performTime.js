@@ -1,132 +1,93 @@
-/* globals performance, chrome */
-(function(namespace) {
+!(function(namespace) {
 	'use strict';
-	var resourceAnalyzeNames = {};
-	var isMonitoring = true;
-	if (!('performance' in window)) {
-		namespace.analyzeEntries = function() {};
-	} else {
-		var getEntries = performance.getEntriesByType || performance.webkitGetEntriesByType || performance.msGetEntriesByType || performance.mozGetEntriesByType || null;
-		if (!getEntries) {
-			namespace.analyzeEntries = function() {};
-		}
-	}
-	var analyzeEntries = function(search, callback) {
-		//Checks
-		if ( typeof search !== 'string' && !( search instanceof RegExp) ) {
-			throw "Please enter a regex or a string in analyzeEntries function";
-		}
+	var $ = window.$ || require('jquery');
+	var timers = {};
+	/*
+	*	Collect a timing value you calculated yourself (1.2s = 1200 milliseconds) :
+	*	namespace.tracktime(
+			{	category:'page name',
+				subcategory:'display first image',
+				timing: 1200
+			});
+	*
+	*	mark an important moment, like the loading of an image
+	*	<img src="xxx" onload="namespace.tracktime(
+			{	category:'Page article',
+				subcategory:'image principale', label:this.src)" />
+	*/
+	namespace.trackTime = function(params) {
+		// defaults
+		var defaults = {
+			category: 'Global', // {string} in GA, the category name
+			subcategory: '', // {string} in GA, the variable
+			timing: 0, // {number}, milliseconds : performance.now() by default
+			label: '-', // {string} very optional, allows for more details in the tracking (like the name of the resource tracked)
+			probability: 15, // {number}, percentage, between 0 and 100 : will limit the number of reports sent back to your backend
+			once: true,	// {boolean}: set to false if you want to allow tracking multiple time the same triplet (cat/subcat/label)
+		};
+		params = $.extend(defaults, params);
 
-		//Variables
-		var res = [];
-		var perfEntries = getEntries.call(performance, "resource");
-
-		//Code
-		for (var i = 0, max = perfEntries.length; i < max; i++) { //Cross entries tab
-			var name = perfEntries[i].name;
-			if (encodeURI(search) === name || name.match(search) != null) {
-				if (!(name in resourceAnalyzeNames)) {
-					res.push(perfEntries[i]); //If 'search' is found we stock the entries tab in results tab for callback
-					resourceAnalyzeNames[name] = true;
-				}
+		// no value given, let's ask that to the browser
+		if (!params.timing && 'performance' in window && 'now' in performance) {
+			// call performance.mark() - standard way to track time (for ex by WPT)
+			if ('mark' in performance) {
+				performance.mark(params.category + ' - ' + params.subcategory);
 			}
 
+			params.timing = performance.now();
+			// more than 1 hour ? some weird browsers (maxthon, some versions of IE 11) report crazy times ( > 10 hours)
+			// let ignore them
+			if (params.timing > 3600000) {
+				return false;
+			}
 		}
-		if (res.length === 0) {
-			return true;
+
+		if (!params.category || !params.subcategory) {
+			throw 'mandatory parameters : "category" and "subcategory"';
 		}
-		setTimeout(function() {
-			callback(res);
-		}, 0); //Callback all results tab for 'search'
-		return false;
-	};
 
-	namespace.analyzeEntries = namespace.analyzeEntries || analyzeEntries;
-	namespace.startResourceMonitoring = function(search, callback, interval) {
-		if (!interval) {
-			interval = 1000;
-		}
-		isMonitoring = true;
-		// check what has been downloaded at 2 important moments + Infinity : when DOM is ready, on load, and once every second after that
-		addEvent(document, 'DOMContentLoaded', function() {
-			namespace.analyzeEntries(search, callback);
-		});
-
-		addEvent(window, 'load', function() {
-			namespace.analyzeEntries(search, callback);
-			setTimeout(function me() {
-				if (!isMonitoring) {
-					return false;
-				}
-				namespace.analyzeEntries(search, callback);
-				setTimeout(me, interval);
-			}, interval);
-		});
-	};
-
-	namespace.stopResourceMonitoring = function() {
-		isMonitoring = false;
-	};
-
-
-	/**
-	 *	uses non standard methods of IE9 (not 10) and Chrome to get the first paint time
-	 *	@param callback : browsers that implemented this wait some time before calculating
-	 *	time to first paint. The argument given back to the callback will be
-	 *	the number of milliseconds between navigationStart and first pixel displayed
-	 *	Plan for cases when the callback is never executed
-	 */
-	var iNumberOfTries = 0,
-		iDelay = 500,
-		iMaxTries = 10,
-		// let's be positive some time, we'll feature detect later
-		bIsFeatureSupported = true;
-	// Edge Case : chrome frame is giving insane time (years…)
-	if ('externalHost' in window) {
-		bIsFeatureSupported = false;
-	}
-
-	namespace.getFirstPaintTime = function getFirstPaintTime(callback) {
-		if (bIsFeatureSupported === false) {
+		if (params.once && params.category + params.subcategory + params.label in timers)
 			return false;
-		}
+		timers[params.category + params.subcategory + params.label] = true;
 
-		if ('chrome' in window && 'loadTimes' in chrome) {
-			// chrome gives the time with timestamp = seconds.millisecond
-			var firstPaintTime = chrome.loadTimes().firstPaintTime;
-			firstPaintTime = Math.round(firstPaintTime * 1000);
-		} else if ('performance' in window && 'timing' in performance && 'msFirstPaint' in performance.timing) {
-			// IE9 has an expected format : timestamp in milliseconds
-			var firstPaintTime = performance.timing.msFirstPaint;
-		} else {
-			bIsFeatureSupported = false;
-		}
-
-		if (bIsFeatureSupported === true) {
-			// console.log(firstPaintTime+' '+performance.timing.navigationStart);
-			firstPaintTime -= performance.timing.navigationStart;
-			if (firstPaintTime > 0) {
-				// bugs found in productin : an IE user agent saying the page displayed after more than one year
-				// did not found the reason, so preventing here crazy times (more than 10 minutes)
-				if (firstPaintTime > 600000) {
-					return false;
-				}
-				setTimeout(function() {
-					callback(firstPaintTime);
-				}, 0);
-			} else if (iMaxTries > iNumberOfTries) {
-				setTimeout(function() {
-					iNumberOfTries++;
-					getFirstPaintTime(callback);
-				}, iDelay);
+		params.timing = Math.round(params.timing);
+		if (params.timing) {
+			// log
+			"console" in window && console.log('timings', params.category, params.subcategory, params.timing);
+			// threshold
+			if(Math.random()*100 < params.probability)
+				return true;
+			// send to google analytics universal (https://developers.google.com/analytics/devguides/collection/analyticsjs/user-timings)
+			if ('ga' in window && params.timing) {
+					ga('send', 'timing', params.category, params.subcategory, params.timing, params.label);
+			}
+			// send to google analytics, legacy version (https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiUserTiming)
+			if ('_gaq' in window && params.timing) {
+				_gaq.push(["_trackTiming", params.category, params.subcategory, params.timing, params.label]);
 			}
 		}
+
 	};
 
-	var addEvent = function(el, ev, fn) {
-		if (el.addEventListener) {
-			el.addEventListener(ev, fn, false);
-		}
-	};
+	// auto-execute collecting the first paint time (only if requestTracker library is there : https://github.com/jpvincent/requestTracker )
+	"PT" in window && PT.getFirstPaintTime(function(timeToFirstPaint) {
+		namespace.trackTime(
+			{category:"Page Load", subcategory:"First Paint", timing:timeToFirstPaint});
 
-})(window.PT = window.PT || {});
+	});
+	// auto-record the page connection time (mainly latency of the user)
+	"performance" in window 
+		&& "timing" in window.performance 
+		&& performance.timing.connectEnd > 0 
+		&& performance.timing.connectStart > 0 
+		&& performance.timing.connectEnd - performance.timing.connectStart > 0 
+		&& namespace.trackTime({category :"Page Load", subcategory:"connection time", 
+				timing: (performance.timing.connectEnd - performance.timing.connectStart)} );
+
+})(window);
+
+
+// for this lib to work in commonJS environments (like nodeJS)
+if (typeof module === "object" && typeof module.exports === "object") {
+	module.exports = window.trackTime;
+}
