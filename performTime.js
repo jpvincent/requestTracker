@@ -55,7 +55,7 @@
 			// log
 			"console" in window && console.log('timings', params.category, params.subcategory, params.timing);
 			// threshold
-			if(Math.random()*100 < params.probability)
+			if(Math.random()*100 > params.probability)
 				return true;
 			// send to google analytics universal (https://developers.google.com/analytics/devguides/collection/analyticsjs/user-timings)
 			if ('ga' in window && params.timing) {
