@@ -61,9 +61,11 @@
 			if ('ga' in window && params.timing) {
 					ga('send', 'timing', params.category, params.subcategory, params.timing, params.label);
 			}
+			// uncomment this line if you need ALL the stats, even if GA is not there yet
+			// window._gaq = window._gaq || [];
 			// send to google analytics, legacy version (https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiUserTiming)
 			if ('_gaq' in window && params.timing) {
-				_gaq.push(["_trackTiming", params.category, params.subcategory, params.timing, params.label]);
+				_gaq.push(["_trackTiming", params.category, params.subcategory, params.timing, params.label, 100]);
 			}
 		}
 
