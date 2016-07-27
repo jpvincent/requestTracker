@@ -3,7 +3,7 @@ Why ?
 
 requestTracker allows you to :
 * know the time your real users spend on some strategical HTTP requests.
-* know when the user really starts to see the page
+* know when the user really starts to important areas of the page
 
 That's useful for :
 * know when your tracking beacon is really executed (aka, how much users your marketing team misses)
@@ -25,24 +25,25 @@ For Time to First Paint, we are using two non-standard methods :
 Compatibility
 -
 
-(Compatible)[http://caniuse.com/#feat=resource-timing] with more than 50% of your users, enough to have realistic data :
+[Compatible](http://caniuse.com/#feat=resource-timing) with more than 70% of your users, enough to have realistic data :
 * IE10 (mobile included)
-* Firefox 34+
+* Firefox (mobile included)
 * Chrome (mobile included)
-* Opera (mobile include)
 
 On incompatible browsers, that simply does nothing.
 
 Usage
 -
 
-For a demo or to test on browsers, execute demo.html
+For a demo or to test on browsers, point to <code>demo.html</code> on localhost (not from disk)
+
+Installation : include <code>measuretime.js</code>
 
 Basic example : starts monitoring of the main homepage image.
 
 ```javascript
 PT.startResourceMonitoring(
-	/main-content\.png/, // give a RegexP object
+	'main-content.png', // give a string or a RegexP object
 	function(timingCollection){ // receive a collection of PerformanceEntry + PerformanceResourceTiming objects
 		console.log(
 			timingCollection[0].name
@@ -63,7 +64,7 @@ Decide when you need to know the timing of the requests
 
 ```javascript
 PT.analyzeEntries(
-	/main-content\.png/, // give a RegexP object
+	/main-content\.png/, // give a RegexP object or a string
 	function(timingCollection){ // receive a collection of PerformanceTiming objects
 		console.log(
 			timingCollection[0].name
@@ -73,8 +74,14 @@ PT.analyzeEntries(
 	});
 ```
 
-On Chrome and IE 9, get the number of milliseconds between page request and first pixels displayed
+Bonus
+-
+
+On Chrome and IE9+, get the number of milliseconds between the page request and first pixels displayed by using <code>PT.getFirstPaintTime()</code>. You can then use this number to send it to Google Analytics like that :
 
 ```javascript
-_gaq.push(['_trackTiming', 'Global figures', 'Time to paint first pixels', PT.getFirstPaintTime() ]);
+PT.getFirstPaintTime(function(firstPaintTime) {
+	ga('send', 'timing', 'Global figures', 'Time to paint first pixels', firstPaintTime)
+})
 ```
+
