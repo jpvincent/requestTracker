@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script type="text/javascript" src="../measuretime.js"></script>
-		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-		<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.15.0.js"></script>
+		<script src="../measuretime.js"></script>
+		<script src="../tracktime.js"></script>
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="http://code.jquery.com/qunit/qunit-1.15.0.js"></script>
 		
-		<link rel="stylesheet" type="text/css" href="./stylesheet.css">
+		<link rel="stylesheet" href="./stylesheet.css">
 	</head>
 	<body>
 		<div id="header">
 			Performance Timing demo and tests
 		</div>
+Test results are valid only when this page is served from an HTTP server (rather than from disk)
 		<h2>Resource Monitoring</h2>
 			<ul>
 				<li id="li_monitoring_jquery">Waiting resource : <code>/jquery\-latest\.min\.js$/</code></li>
@@ -29,9 +31,10 @@
 			<ul>
 				<li id="li_timeToFirstPaint">Waiting for the browser to give us the time to first paint...</li>
 			</ul>
-
-					Test results are valid only when this page is served from an HTTP server (rather than from disk)
-
+		<h2>Check that trackTime method does work</h2>
+			<ul>
+				<li id="li_trackTimeOK">when trackTime() is executed without error, this text disappears</li>
+			</ul>
 <script>
 var directCall_stylesheet_flag =
 	monitoring_jquery_flag	=
@@ -50,7 +53,7 @@ s.parentNode.insertBefore(asyncScript, s);
 
 //Call analyzEntries onLoad for stylesheet.css
 window.onload = function(){
-	PT.analyzeEntries(/stylesheet\.css$/,function(res2){
+	WPERF.analyzeEntries(/stylesheet\.css$/,function(res2){
 		li_directCall_stylesheet.innerHTML=res2[0].name+'<br /> <b>responseEnd : '+res2[0].responseEnd+'</b>';
 		li_directCall_stylesheet.className='working';
 		directCall_stylesheet_flag=false;
@@ -59,7 +62,7 @@ window.onload = function(){
 };
 
 //ResourceMonitoring for jquery-latest.min.js
-PT.startResourceMonitoring(/jquery\-latest\.min\.js$/,function(res){
+WPERF.startResourceMonitoring(/jquery\-latest\.min\.js$/,function(res){
 	li_monitoring_jquery.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
       li_monitoring_jquery.className='working';
       monitoring_jquery_flag=false;
@@ -67,14 +70,14 @@ PT.startResourceMonitoring(/jquery\-latest\.min\.js$/,function(res){
   },250);
 
   //ResourceMonitoring for test.js
-PT.startResourceMonitoring(/test\.js$/,function(res){
+WPERF.startResourceMonitoring(/test\.js$/,function(res){
 	li_monitoring_test_regex.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
      	li_monitoring_test_regex.className='working';
      	monitoring_test_flag=false;
      	console.log(res);
   });
 
-PT.startResourceMonitoring('http://code.jquery.com/qunit/qunit-1.15.0.js',function(res){
+WPERF.startResourceMonitoring('http://code.jquery.com/qunit/qunit-1.15.0.js',function(res){
 	li_monitoring_test_string.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
 		li_monitoring_test_string.className='working';
 		monitoring_test_string_flag=false;
@@ -83,7 +86,7 @@ PT.startResourceMonitoring('http://code.jquery.com/qunit/qunit-1.15.0.js',functi
 
 
   //ResourceMonitoring for resourceNot.here
-PT.startResourceMonitoring(/resourceNot.here/,function(res){
+WPERF.startResourceMonitoring(/resourceNot.here/,function(res){
 	li_monitoring_failure.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
      	li_monitoring_failure.className='error';
      	monitoring_failure_flag=false;
@@ -91,14 +94,30 @@ PT.startResourceMonitoring(/resourceNot.here/,function(res){
   },250);
 
 // get time to first paint from the browser
- PT.getFirstPaintTime(function displayFirstPaint(firstPaintTime) {
+ WPERF.getFirstPaintTime(function displayFirstPaint(firstPaintTime) {
 	li_timeToFirstPaint.innerHTML = firstPaintTime+' ms before browser painted pixels';
 	li_timeToFirstPaint.className = 'working';
 	timeToFirstPaint_failure_flag = false;
 });
 
+
+try {
+	WPERF.trackTime({
+		category:'Global',
+		subcategory:'Random'
+	})
+
+	li_trackTimeOK.className = 'working'
+	li_trackTimeOK.innerHTML = 'trackTime() executed withour errors'
+} catch(e) {
+	li_trackTimeOK.className = 'error'
+	li_trackTimeOK.innerHTML = 'trackTime() method had an exception, see console'
+	setTimeout( _ => {throw e}, 0)
+}
+
+
 setTimeout(function(){
-	PT.stopResourceMonitoring();
+	WPERF.stopResourceMonitoring();
 	if (directCall_stylesheet_flag === true) {
 		li_directCall_stylesheet.className='error';
 		li_directCall_stylesheet.innerHTML='Incompatible browser...';
