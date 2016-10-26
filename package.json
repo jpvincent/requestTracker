@@ -4,7 +4,7 @@
   "description": "Why ? -",
   "main": "node-static-server.js",
   "scripts": {
-    "test": "node node-static-server.js & open http://localhost:2889/demo.html"
+    "test": "node node-static-server.js & open http://localhost:2889/demo/"
   },
   "repository": {
     "type": "git",

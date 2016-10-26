@@ -32,7 +32,7 @@ On incompatible browsers, that simply does nothing.
 
 # Test
 
-For a demo or to test on your browsers, point to ```demo.html``` on localhost (not from disk). If you have NodeJS, run ```npm install``` then ```npm test``` to have a static server mounted on http://localhost:2889/demo.html and open the browser on it (MacOS).
+For a demo or to test on your browsers, point to ```demo/index.html``` on localhost (not from disk). If you have NodeJS, run ```npm install``` then ```npm test``` to have a static server mounted on http://localhost:2889/demo.html and open the browser on it (MacOS).
 
 # Usage
 
