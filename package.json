@@ -1,0 +1,22 @@
+{
+  "name": "request-tracker",
+  "version": "1.0.0",
+  "description": "Why ? -",
+  "main": "node-static-server.js",
+  "scripts": {
+    "test": "node node-static-server.js & open http://localhost:2889/demo.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpvincent/requestTracker.git"
+  },
+  "author": "Jean-Pierre Vincent",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jpvincent/requestTracker/issues"
+  },
+  "homepage": "https://github.com/jpvincent/requestTracker#readme",
+  "dependencies": {
+    "express": "4.14.0"
+  }
+}
