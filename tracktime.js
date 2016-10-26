@@ -59,14 +59,24 @@
         return true;
       // send to google analytics universal (https://developers.google.com/analytics/devguides/collection/analyticsjs/user-timings)
       // dont forget to set a siteSpeedSampleRate to 100% https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#siteSpeedSampleRate
-      if ('ga' in window && params.timing) {
+      if ('ga' in window) {
           ga('send', 'timing', params.category, params.subcategory, params.timing, params.label);
       }
       // uncomment this line if you need ALL the stats, even if GA is not there yet
       // window._gaq = window._gaq || [];
       // send to google analytics, legacy version (https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiUserTiming)
-      if ('_gaq' in window && params.timing) {
+      if ('_gaq' in window) {
         _gaq.push(["_trackTiming", params.category, params.subcategory, params.timing, params.label, 100]);
+      }
+      // Send to webperf.io (basilic) http://support.basilic.io/getting_started/user-timings.html
+      if('FOGLIO' in window){
+        var name = params.category + ' '+ params.subcategory +' '+ params.label
+        name = name.replace(/^[a-zA-Z0-9_-]/g, '_')
+        FOGLIO.q('mark', {
+        // console.log('mark', {
+          name: name,
+          value: performance.timing.navigationStart + params.timing
+        })
       }
     }
 
