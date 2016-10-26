@@ -32,7 +32,7 @@ On incompatible browsers, that simply does nothing.
 
 # Test
 
-For a demo or to test on your browsers, point to ```demo/index.html``` on localhost (not from disk). If you have NodeJS, run ```npm install``` then ```npm test``` to have a static server mounted on http://localhost:2889/demo.html and open the browser on it (MacOS).
+For a demo or to test on your browsers, point to ```demo/index.html``` on localhost (not from disk). If you have NodeJS, run ```npm install``` then ```npm test``` to have a static server mounted on http://localhost:2888/demo.html and open the browser on it (MacOS).
 
 # Usage
 
@@ -42,6 +42,8 @@ Include ```measuretime.js``` in your page. It will expose three methods :
 * ```WPERF.analyzeEntries( RegExp|String , callback)```
 * ```WPERF.startResourceMonitoring( RegExp|String , callback)```
 * ```WPERF.stopResourceMonitoring()```
+
+NPM user ? Do this : ```npm install https://github.com/jpvincent/requestTracker/archive/v2.0.0.tar.gz --save```, then the file is in ```node_modules/request-tracker/measuretime.js```.
 
 ## Examples
 
