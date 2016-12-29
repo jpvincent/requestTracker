@@ -5,19 +5,19 @@
 		<script src="../tracktime.js"></script>
 		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 		<script src="http://code.jquery.com/qunit/qunit-1.15.0.js"></script>
-		
 		<link rel="stylesheet" href="./stylesheet.css">
 	</head>
 	<body>
 		<div id="header">
 			Performance Timing demo and tests
 		</div>
-Test results are valid only when this page is served from an HTTP server (rather than from disk)
+Test results are valid only when this page is served from an HTTP server (rather than from disk)<br>
+You could slow down your network for battle-testing the code
 		<h2>Resource Monitoring</h2>
 			<ul>
-				<li id="li_monitoring_jquery">Waiting resource : <code>/jquery\-latest\.min\.js$/</code></li>
-				<li id="li_monitoring_test_regex">Waiting async resource : <code>/test\.js$/</code></li>
-				<li id="li_monitoring_test_string">Waiting resource : <code>http://code.jquery.com/qunit/qunit-1.15.0.js</code></li>
+				<li id="li_monitoring_jquery">Waiting distant sync resource with RegExp: <code>/jquery\-latest\.min\.js$/</code></li>
+				<li id="li_monitoring_test_regex">Waiting local async resource with RegExp: <code>/test\.js$/</code></li>
+				<li id="li_monitoring_test_string">Waiting resource with string : <code>http://code.jquery.com/qunit/qunit-1.15.0.js</code></li>
 			</ul>
 		<h2>Direct call of analyzeEntries</h2>
 			<ul>
@@ -25,7 +25,7 @@ Test results are valid only when this page is served from an HTTP server (rather
 			</ul>
 		<h2>Resource Monitoring failure</h2>
 			<ul>
-				<li id="li_monitoring_failure">Waiting resource : resourceNot.here</li>
+				<li id="li_monitoring_failure">Waiting for unexisting resource : resourceNot.here</li>
 			</ul>
 		<h2>Detect the time to first render</h2>
 			<ul>
@@ -54,7 +54,7 @@ s.parentNode.insertBefore(asyncScript, s);
 //Call analyzEntries onLoad for stylesheet.css
 window.onload = function(){
 	WPERF.analyzeEntries(/stylesheet\.css$/,function(res2){
-		li_directCall_stylesheet.innerHTML=res2[0].name+'<br /> <b>responseEnd : '+res2[0].responseEnd+'</b>';
+		li_directCall_stylesheet.innerHTML=res2[0].name+'<br /> <b>responseEnd : '+res2[0].responseEnd+'</b>' + '<br>analyzeEntries() call on synchronous CSS, post download';
 		li_directCall_stylesheet.className='working';
 		directCall_stylesheet_flag=false;
 		console.log(res2);
@@ -63,25 +63,26 @@ window.onload = function(){
 
 //ResourceMonitoring for jquery-latest.min.js
 WPERF.startResourceMonitoring(/jquery\-latest\.min\.js$/,function(res){
-	li_monitoring_jquery.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+	li_monitoring_jquery.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b><br>startResourceMonitoring() call on synchronous JS, post download';
       li_monitoring_jquery.className='working';
       monitoring_jquery_flag=false;
       console.log(res);
+      performance.mark(res[0].name)
   },250);
 
   //ResourceMonitoring for test.js
 WPERF.startResourceMonitoring(/test\.js$/,function(res){
-	li_monitoring_test_regex.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
+	li_monitoring_test_regex.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b><br>startResourceMonitoring() call on asynchronous JS';
      	li_monitoring_test_regex.className='working';
      	monitoring_test_flag=false;
-     	console.log(res);
+     	performance.mark(res[0].name)
   });
 
 WPERF.startResourceMonitoring('http://code.jquery.com/qunit/qunit-1.15.0.js',function(res){
 	li_monitoring_test_string.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
 		li_monitoring_test_string.className='working';
 		monitoring_test_string_flag=false;
-		console.log(res);
+		performance.mark(res[0].name)
 	});
 
 
@@ -90,7 +91,7 @@ WPERF.startResourceMonitoring(/resourceNot.here/,function(res){
 	li_monitoring_failure.innerHTML=res[0].name+'<br /> <b>responseEnd : '+res[0].responseEnd+'</b>';
      	li_monitoring_failure.className='error';
      	monitoring_failure_flag=false;
-     	console.log(res);
+     	performance.mark(res[0].name)
   },250);
 
 // get time to first paint from the browser
