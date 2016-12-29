@@ -14,7 +14,7 @@ That's useful for :
 
 Using the [Performance timeline API](http://www.w3.org/TR/performance-timeline/) to retrieve HTTP requests from the browser. Information given in the callback are a merge of [PerformanceEntry](http://www.w3.org/TR/performance-timeline/#sec-PerformanceEntry-interface) and [PerformanceResourceTiming](http://www.w3.org/TR/resource-timing/#performanceresourcetiming).
 
-The information are retrieved every few seconds, at DOM ready and when the page is loaded.
+If the browser does not support the [Performance Observer API](https://w3c.github.io/performance-timeline/#dom-performanceobserver) that allows to be warned every time a request has landed, the fallback is to retrieve the HTTP timeline every few seconds, at DOM ready and when the page is loaded.
 
 For Time to First Paint, we are using two non-standard methods :
 * [performance.timing.msFirstPaint](http://msdn.microsoft.com/en-us/library/ie/ff974719(v=vs.85).aspx) (IE9 +)

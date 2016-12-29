@@ -62,13 +62,22 @@
     addEvent(document, 'DOMContentLoaded', readQueue)
     addEvent(window, 'load', readQueue)
 
-    setTimeout(function me () {
-      if (!isMonitoring) {
-        return false
-      }
-      readQueue()
-      setTimeout(me, interval)
-    }, interval)
+    // use the standard if available
+    if( ('PerformanceObserver' in window) ) {
+      const observer = new PerformanceObserver(readQueue)
+      observer.observe({entryTypes: ['resource']})
+    // fallback : check every 2 seconds
+    } else {
+      setTimeout(function me () {
+        if (!isMonitoring) {
+          return false
+        }
+        readQueue()
+        setTimeout(me, interval)
+      }, interval)
+
+    }
+
   }
 
   const queue = [] // a Set would have been better, but it does not support retrieval of a key composed from 2 objects
