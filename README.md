@@ -43,7 +43,7 @@ Include ```measuretime.js``` in your page. It will expose three methods :
 * ```WPERF.startResourceMonitoring( RegExp|String , callback)```
 * ```WPERF.stopResourceMonitoring()```
 
-NPM user ? Do this : ```npm install https://github.com/jpvincent/requestTracker/archive/v2.0.0.tar.gz --save```, then the file is in ```node_modules/request-tracker/measuretime.js```.
+NPM user ? Do this : ```npm install https://github.com/jpvincent/requestTracker/archive/v2.1.0.tar.gz --save```, then the file is in ```node_modules/request-tracker/measuretime.js```.
 
 ## Examples
 
