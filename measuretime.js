@@ -86,7 +86,7 @@
   }
   function removeFromQueue (search, callback) {
     // first find
-    const index = queue.findIndex((item, index) => {
+    const index = queue.findIndex( function(item, index) {
       if (search === item.search && callback === item.callback)
         return true
       return false
@@ -96,7 +96,7 @@
       queue.splice(index, 1)
   }
   function readQueue() {
-    queue.forEach( item => {
+    queue.forEach( function(item) {
       if (namespace.analyzeEntries(item.search, item.callback) === true)
         removeFromQueue(item.search, item.callback)
     })
