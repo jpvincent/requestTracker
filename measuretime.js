@@ -82,7 +82,7 @@
 
   const queue = [] // a Set would have been better, but it does not support retrieval of a key composed from 2 objects
   function addToQueue (search, callback) {
-    queue.push({search, callback})
+    queue.push({search:search, callback:callback})
   }
   function removeFromQueue (search, callback) {
     // first find
